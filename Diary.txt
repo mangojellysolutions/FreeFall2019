@@ -1,0 +1,8 @@
+24 Hr Challange (accumative)
+Aim: To make a game based on the Atari Jaguar game 'Down Fall' using only Javascript and HTML5 Canvas, an IDE that doesn't have code completion (Notepad ++) and the internet for reference.  Additional libraries and frameworks are not aloud.
+
+2 hrs 
+Started by creating a basic sketleton layout with vector graphics by using the basic move and line to, a gradient fill background and scoreboard.  A basic player object was create containing draw and basic left / right movement controlled by the keyboard.  Also a simple platform object was create containing draw methods.  The start of the main game loop was added to draw everything to screen.
+
+3 hr
+Added platform collison method and player drop method to allow player to drop and land on a static platform.  Player will wrap if the sprite leaves the far right / left and bottom of screen. Added collison detection to the platform object so player can collide and stand on the platform.  Next I moved onto dealing with multiple platforms and decide by adding a class to handle platform spawing (at the moment just two) and stores them within an array.  It also deals with player collisons of each platform which now allows the player collison with any of the platforms.  Last minute additions methods to deal with platform movement with wrap around and making sure the player stays on the platform that it has collided with whilst the platform is moving.  

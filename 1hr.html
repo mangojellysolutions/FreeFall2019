@@ -1,0 +1,136 @@
+<DOCTYPE html>
+<html lang="eng">
+	<head>
+	</head>
+	<body>
+		<canvas id="canvas" width="800" height="600"></canvas>
+		<script>
+		//2 hrs work
+			const canvas = document.getElementById('canvas');
+			const ctx = canvas.getContext('2d');
+			const score = {high: 1000, own: 0};
+			
+			const Platform = (x, y, w) => {
+				const height = 16;
+				const width = w;
+				const position  = { x:x, y:y };
+				const draw = () => {
+					ctx.beginPath();
+					ctx.moveTo(position.x, position.y);
+					ctx.lineTo(position.x + width, position.y);
+					ctx.lineTo(position.x + width - height / 2, position.y + height);
+					ctx.lineTo(position.x + height / 2, position.y + height);
+					ctx.lineTo(position.x, position.y);
+					ctx.fill();
+				}
+				const move = () => {
+				}
+				return {
+					draw: draw,
+					move: move
+				}
+			}
+			
+			const Player = (x ,y) => {
+				const position  = { x:x, y:y };
+				const speed = 5;
+				let state = 'static';
+				const setState = (keyCode) => {
+					switch(keyCode){
+						case 37: state = 'left'; break; //Left key
+						case 38: state = 'jump'; break;//Up key
+						case 39: state = 'right'; break; //Right key
+						case 40: state = 'duck'; break; //Down key
+						default: state = 'static'; break;
+					}
+				}
+				const draw = () => {
+					ctx.beginPath();
+					ctx.moveTo(position.x,position.y);
+					ctx.lineTo(position.x+5, position.y-20);
+					ctx.lineTo(position.x-5, position.y-20);
+					ctx.lineTo(position.x, position.y);
+					ctx.ellipse(position.x, position.y-26, 5, 5,0, 0, 2 * Math.PI);
+					ctx.font = "10px Arial";
+					ctx.fillText(state, position.x, position.y+10);
+					ctx.fill();	
+				}
+				const move = () => {
+					switch(state){
+						case 'left':
+								position.x -= speed;
+							break;
+						case 'right':
+								position.x += speed;
+							break;
+						case 'jump':
+							break;
+						case 'duck':
+							break;
+					}
+				}
+				return {
+					draw: draw,
+					setState: setState,
+					move: move
+				}
+			}
+			
+			const drawBackground = () => {
+				const grd = ctx.createLinearGradient(0, canvas.height/1.25,0,0);
+				grd.addColorStop(0,"darkblue");
+				grd.addColorStop(1,"white");
+				ctx.fillStyle = grd;
+				ctx.fillRect(10,10,canvas.width, canvas.height);
+			}
+			
+			const drawScoreBoard = () => {
+				ctx.fillStyle = 'lightgrey';
+				ctx.fillRect(20,canvas.height - 70,canvas.width-30, 60);
+				ctx.fillStyle = 'black';
+				ctx.font = "30px Arial";
+				ctx.fillText("High Score: "+score.high, 40, canvas.height - 28);
+				ctx.fillText("Own Score: "+score.own, 500, canvas.height - 28);
+			}
+			
+			const moveLeft = () => {
+			}
+			
+			const moveRight = () => {
+			}
+			
+			const jump = () => {
+			}
+			
+			const duck = () => {
+			}
+			
+			
+			const checkKeyBoard =(e) => {
+				player.setState(e.keyCode);
+			}
+			
+			const releaseKey =() => {
+				player.setState(null);
+			}
+			
+			const player =  Player(100,100);
+			const platform1 = Platform(200,200,200);
+			
+			const loop = () => {
+				ctx.clearRect(0,0, canvas.width, canvas.height);
+				drawBackground();
+				drawScoreBoard();
+				player.draw();
+				platform1.draw();
+				player.move();
+				platform1.move();
+				window.requestAnimationFrame(loop);
+			}
+			
+			window.requestAnimationFrame(loop);
+			window.addEventListener('keydown', checkKeyBoard, false);
+			window.addEventListener('keyup', releaseKey, false);
+		</script>
+	</body>
+</html>

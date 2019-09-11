@@ -1,0 +1,213 @@
+<DOCTYPE html>
+<html lang="eng">
+	<head>
+	</head>
+	<body>
+		<canvas id="canvas" width="800" height="600"></canvas>
+		<script>
+		//2 hrs work
+			const canvas = document.getElementById('canvas');
+			const ctx = canvas.getContext('2d');
+			const score = {high: 1000, own: 0};
+			const GameDirector = () => {
+				let platforms = [];
+				const spawnPlatforms = () => {
+					let platform = Platform(100, canvas.height / 2, 200);
+					platforms.push(platform);
+					platform = Platform(300, canvas.height / 3, 200);
+					platforms.push(platform);
+				}
+				
+				const drawPlatforms = () => {
+					for (platform of platforms){
+						platform.draw();
+					}
+				}
+				const collidedWithPlatform = (thePlayer) => {
+					for (platform of platforms){
+						if (platform.inBounds(thePlayer.getPosition().x, thePlayer.getPosition().y)){
+							thePlayer.getPosition().y = platform.getPosition().y;
+						}
+					}
+				}
+				
+				const movePlatforms = () => {
+					for (platform of platforms){
+						platform.move();
+					}
+				}
+				return {
+					spawnPlatforms: spawnPlatforms,
+					drawPlatforms: drawPlatforms,
+					collidedWithPlatform: collidedWithPlatform,
+					movePlatforms
+				}
+			
+			}
+			const Platform = (x, y, w) => {
+				const height = 16;
+				const width = w;
+				const speed = 1;
+				const position  = { x:x, y:y };
+				const draw = () => {
+					ctx.beginPath();
+					ctx.moveTo(position.x, position.y);
+					ctx.lineTo(position.x + width, position.y);
+					ctx.lineTo(position.x + width - height / 2, position.y + height);
+					ctx.lineTo(position.x + height / 2, position.y + height);
+					ctx.lineTo(position.x, position.y);
+					ctx.fill();
+				}
+				const move = () => {
+					position.y -= speed;
+					if (position.y == 0)
+						position.y = canvas.height;
+				}
+				
+				const inBounds = (testX, testY) => {
+					if (testX >= position.x && testX <= position.x + width){
+						if(testY >= position.y && testY <= position.y + height){
+							return true;
+						}
+					}
+					return false;
+				}
+				const getPosition = () => {
+					return position;
+				}
+				return {
+					draw: draw,
+					move: move,
+					inBounds: inBounds,
+					getPosition: getPosition
+				}
+			}
+			
+			const Player = (x ,y) => {
+				const position  = { x:x, y:y };
+				const speed = 2;
+				const fallRate = 2;
+				let state = 'static';
+				const setState = (keyCode) => {
+					switch(keyCode){
+						case 37: state = 'left'; break; //Left key
+						case 38: state = 'jump'; break;//Up key
+						case 39: state = 'right'; break; //Right key
+						case 40: state = 'duck'; break; //Down key
+						default: state = 'static'; break;
+					}
+				}
+				
+				const getPosition = () => {
+					return position;
+				}
+				
+				const draw = () => {
+					ctx.beginPath();
+					ctx.moveTo(position.x,position.y);
+					ctx.lineTo(position.x+5, position.y-20);
+					ctx.lineTo(position.x-5, position.y-20);
+					ctx.lineTo(position.x, position.y);
+					ctx.ellipse(position.x, position.y-26, 5, 5,0, 0, 2 * Math.PI);
+					ctx.font = "10px Arial";
+					ctx.fillText(state, position.x, position.y+10);
+					ctx.fill();	
+				}
+				const move = () => {
+					switch(state){
+						case 'left':
+								position.x -= speed;
+								if (position.x < 0)
+									position.x = canvas.width;
+							break;
+						case 'right':
+								position.x += speed;
+								if (position.x > canvas.width)
+									position.x = 0;
+							break;
+						case 'jump':
+							break;
+						case 'duck':
+							break;
+					}
+				}
+				
+				const reachedBottomOfScreen = () => {
+					if (position.y > canvas.width){
+						position.y = 0;
+					}
+				}
+				
+				const drop = () => {	
+					position.y += fallRate;
+					reachedBottomOfScreen();
+				}
+				return {
+					draw: draw,
+					setState: setState,
+					move: move,
+					drop: drop,
+					getPosition: getPosition
+				}
+			}
+			
+			const drawBackground = () => {
+				const grd = ctx.createLinearGradient(0, canvas.height/1.25,0,0);
+				grd.addColorStop(0,"darkblue");
+				grd.addColorStop(1,"white");
+				ctx.fillStyle = grd;
+				ctx.fillRect(10,10,canvas.width, canvas.height);
+			}
+			
+			const drawScoreBoard = () => {
+				ctx.fillStyle = 'lightgrey';
+				ctx.fillRect(20,canvas.height - 70,canvas.width-30, 60);
+				ctx.fillStyle = 'black';
+				ctx.font = "30px Arial";
+				ctx.fillText("High Score: "+score.high, 40, canvas.height - 28);
+				ctx.fillText("Own Score: "+score.own, 500, canvas.height - 28);
+			}
+			
+			const moveLeft = () => {
+			}
+			
+			const moveRight = () => {
+			}
+			
+			const jump = () => {
+			}
+			
+			const duck = () => {
+			}
+			
+			
+			const checkKeyBoard =(e) => {
+				player.setState(e.keyCode);
+			}
+			
+			const releaseKey =() => {
+				player.setState(null);
+			}
+			
+			const player =  Player(220,100);
+			const gameDirector = GameDirector();
+			gameDirector.spawnPlatforms();
+			const loop = () => {
+				ctx.clearRect(0,0, canvas.width, canvas.height);
+				drawBackground();
+				drawScoreBoard();
+				player.draw();
+				player.move();
+				gameDirector.drawPlatforms();
+				gameDirector.movePlatforms();
+				if (!gameDirector.collidedWithPlatform(player))
+					player.drop();
+				window.requestAnimationFrame(loop);
+			}
+			
+			window.requestAnimationFrame(loop);
+			window.addEventListener('keydown', checkKeyBoard, false);
+			window.addEventListener('keyup', releaseKey, false);
+		</script>
+	</body>
+</html>
