@@ -9,3 +9,6 @@ Added platform collison method and player drop method to allow player to drop an
 
 4 hr 
 Added a simple title and game over screen and implemented scoring logic.  The scoring is based on the amount of time the player stays on screen.  Providing the player doesn't fall off the bottom of the screen the score is increment.  If the highscore is reach the highscore is adjusted.  If the player falls off the bottom or disapears off the top of the screen when riding a platform then the game over screen is shown.  The player hits any key to move back to the title screen and again to start the game with their score reset to zero by the highscore maintained.  Finished off with a quick refactor of some of the code.
+
+5 hr
+Added simple parallax scrolling using wrapping rectangles for time being. Aligned game text;
