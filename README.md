@@ -1,6 +1,7 @@
 # FreeFall2019
-An experiment into productivity programming for a total of 24 hours in sittings of no more than 1 to 2 hours per day to produce a game based on a clone of the Atari Jaguar game 'Down Fall' using only Javascript and HTML5 Canvas, and an IDE that doesn't have code completion (Notepad ++) and the internet for reference.  Additional libraries and frameworks are not aloud.  I will then produce a different game over longer sittings in a more conventional work base setting i.e. 9 – 5 breaking every 2 hours.  After which I will compare the two experiences.
+Part of an experiment into productivity. Programming for a total of 24 hours in sittings of no more than 1 to 2 hours per day to produce a game based on the Atari Jaguar game 'Down Fall' using only Javascript, HTML5 Canvas and an IDE that doesn't have code completion (I have chossen Notepad ++) and the internet for reference.  Additional libraries and frameworks are not aloud.  once the challenge is complete I will then produce a different game over longer sittings in a more conventional work base setting i.e. 9 – 5 breaking every 2 hours.  After which I will compare the two experiences.
 
+# Diary 
 2 hrs 
 Started by creating a basic skeleton layout with vector graphics by using the basic move and line to, a gradient fill background and scoreboard.  A basic player object was create containing draw and basic left / right movement controlled by the keyboard.  Also a simple platform object was create containing draw methods.  The start of the main game loop was added to draw everything to screen.
 
