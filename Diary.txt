@@ -12,3 +12,6 @@ Added a simple title and game over screen and implemented scoring logic.  The sc
 
 5 hr
 Added simple parallax scrolling using wrapping rectangles for time being. Aligned game text;
+
+6 hr
+Added a basic random platform generator that regenerates a set of platforms when the current set leaves the top of screen.  
