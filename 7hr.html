@@ -1,0 +1,407 @@
+<DOCTYPE html>
+<html lang="eng">
+	<head>
+	</head>
+	<body>
+		<canvas id="canvas" width="800" height="600"></canvas>
+		<script>
+		//2 hrs work
+			const canvas = document.getElementById('canvas');
+			const ctx = canvas.getContext('2d');
+			
+			const GameDirector = () => {
+				const scoreboard = Scoreboard();
+				const spawnInterval = 10000;
+				let timeElaspedSinceLastSpawn = 0;
+				let platforms = [];
+	
+				function getRandomArbitrary(min, max) {
+					return Math.random() * (max - min) + min;
+				}
+
+				function getRandomInt(min, max) {
+					min = Math.ceil(min);
+					max = Math.floor(max);
+					return Math.floor(Math.random() * (max - min + 1)) + min;
+				}
+				const resetGame = () => {
+					scoreboard.reset();
+					platforms = [];
+				}
+				let spawnedAt = 0;
+				const spawnPlatforms = () => {
+					//Less number of platforms the harder the game
+					const noOfPlatforms = getRandomArbitrary(1,10);
+					const playerWidth = 25 ;  // Space between
+					const minWidth = (canvas.width / 10 ) - (playerWidth * 2);
+					const maxWidth = (canvas.width / noOfPlatforms ) - playerWidth;
+					const maxSizeCombinations = maxWidth / minWidth;
+					let offSetStart = getRandomInt(0,1);
+					let randomSizeMultiplier = getRandomInt(1,maxSizeCombinations);
+					
+					//get the plaform widths to use
+					let randomPlatformWidths = [];
+					for (let i = 0; i < noOfPlatforms; i++){
+						randomSizeMultiplier = getRandomInt(1,maxSizeCombinations);
+						randomPlatformWidths.push( minWidth * randomSizeMultiplier );
+					}
+					let sumOfPlatformWidths = randomPlatformWidths.reduce( (acc, val) => { 
+						return acc + val; 
+					} , 0);
+					
+					let emptySpaceDistribution = (canvas.width - sumOfPlatformWidths) / noOfPlatforms;
+					let x = (offSetStart == 1 ? emptySpaceDistribution : 0);
+					for (platformWidth of randomPlatformWidths){
+						platforms.push(Platform(x, canvas.height, platformWidth));
+						x += platformWidth + emptySpaceDistribution;
+					}
+					spawnAt = Date.now();
+				}
+				
+				const drawPlatforms = () => {
+					for (platform of platforms){
+						if (platform != null) platform.draw();
+					}
+				}
+				
+				const collidedWithPlatform = (thePlayer) => {
+					for (platform of platforms){
+						if (platform.inBounds(thePlayer.getPosition().x, thePlayer.getPosition().y)){
+							thePlayer.getPosition().y = platform.getPosition().y;
+						}
+					}
+				}
+				
+				const movePlatforms = () => {
+					let deleted = false;
+					for (let i = platforms.length-1; i > -1 ; i--){
+						platforms[i].move();
+						if (platforms[i].getPosition().y == 0){
+							delete platforms[i];
+							deleted = true;
+						}	
+					}
+					let temp = [];
+					if (deleted){
+						for(let i of platforms){
+							i && temp.push(i); // copy each non-empty value to the 'temp' array
+							platforms = temp;
+						}
+					}
+					timeElaspedSinceLastSpawn += (Date.now() - spawnAt);
+					if (timeElaspedSinceLastSpawn > spawnInterval){
+						spawnPlatforms();
+						timeElaspedSinceLastSpawn = 0;
+					}
+				}
+				return { resetGame, spawnPlatforms, drawPlatforms, collidedWithPlatform, movePlatforms, scoreboard }
+			}
+			
+			const Platform = (x, y, w) => {
+				const height = 16;
+				const width = w;
+				const speed = 3;
+				const position  = { x:x, y:y };
+				const draw = () => {
+					ctx.beginPath();
+					ctx.moveTo(position.x, position.y);
+					ctx.lineTo(position.x + width, position.y);
+					ctx.lineTo(position.x + width - height / 2, position.y + height);
+					ctx.lineTo(position.x + height / 2, position.y + height);
+					ctx.lineTo(position.x, position.y);
+					ctx.fill();
+				}
+				
+				const move = () => {
+					position.y -= speed;
+				}
+				
+				const inBounds = (testX, testY) => {
+					if (testX >= position.x && testX <= position.x + width){
+						if(testY >= position.y && testY <= position.y + height){
+							return true;
+						}
+					}
+					return false;
+				}
+				
+				const getPosition = () => { return position; }
+				
+				return { draw, move, inBounds, getPosition }
+			}
+			
+			const Player = (x ,y) => {
+				const position  = { x:x, y:y };
+				const speed = 2;
+				const fallRate = 2;
+				let state = 'static';
+				const setState = (keyCode) => {
+					switch(keyCode){
+						case 37: state = 'left'; break; //Left key
+						case 38: state = 'jump'; break;//Up key
+						case 39: state = 'right'; break; //Right key
+						case 40: state = 'duck'; break; //Down key
+						default: state = 'static'; break;
+					}
+				}
+				
+				const getPosition = () => { return position; }
+				
+				const setPosition = (x, y) => {
+					position.x = x;
+					position.y = y;
+				}
+				
+				const draw = () => {
+					ctx.beginPath();
+					ctx.moveTo(position.x,position.y);
+					ctx.lineTo(position.x+5, position.y-20);
+					ctx.lineTo(position.x-5, position.y-20);
+					ctx.lineTo(position.x, position.y);
+					ctx.ellipse(position.x, position.y-26, 5, 5,0, 0, 2 * Math.PI);
+					ctx.font = "10px Arial";
+					ctx.fillText(state, position.x, position.y+10);
+					ctx.fill();	
+				}
+				const move = () => {
+					switch(state){
+						case 'left':
+								position.x -= speed;
+								if (position.x < 0)
+									position.x = canvas.width;
+							break;
+						case 'right':
+								position.x += speed;
+								if (position.x > canvas.width)
+									position.x = 0;
+							break;
+						case 'jump':
+							break;
+						case 'duck':
+							break;
+					}
+				}
+				
+				const reachedBottomOfScreen = () => {
+					if (position.y > canvas.width){
+						position.y = 0;
+					}
+				}
+				
+				const drop = () => {	
+					position.y += fallRate;
+					reachedBottomOfScreen();
+				}
+				
+				return { draw, setState, move, drop, getPosition, setPosition }
+			}
+			
+			const olddrawBackground = () => {
+				const grd = ctx.createLinearGradient(0, canvas.height/1.25,0,0);
+				grd.addColorStop(0,"darkblue");
+				grd.addColorStop(1,"white");
+				ctx.fillStyle = grd;
+				ctx.fillRect(10,10,canvas.width, canvas.height);
+			}
+			let yScrollOffset1 = 0;
+			let yScrollOffset2 = canvas.height;
+			let yScrollOffsetA = 0;
+			let yScrollOffsetB = canvas.height;
+			
+			const drawBackgroundSection = (xStart, xEnd, yStart, colour) => {
+				ctx.beginPath();
+				ctx.moveTo(xStart,yStart);
+				ctx.lineTo(xEnd, yStart);
+				ctx.lineTo(xEnd, yStart + canvas.height);
+				ctx.lineTo(xStart,  yStart + canvas.height);
+				ctx.closePath();
+				ctx.fillStyle = colour;
+				ctx.fill();
+				ctx.stroke();
+			}
+			const drawBackground = () => {
+				let scrollSpeed1 = 10;
+				let scrollSpeed2 = 8;
+				let foregroundLeft = {start: 0, end: canvas.width / 8};
+				let foregroundRight = {start: canvas.width - canvas.width / 8, end: canvas.width};
+				let backgroundLeft = {start: foregroundLeft.end, end: foregroundLeft.end + canvas.width / 8};
+				let backgroundRight = {start: foregroundRight.start - canvas.width / 8, end: foregroundRight.start};
+				olddrawBackground();
+			
+				//part 1
+				drawBackgroundSection(foregroundLeft.start,foregroundLeft.end, yScrollOffset1, "red"); 
+				//part 2
+				drawBackgroundSection(foregroundLeft.start,foregroundLeft.end, yScrollOffset2, "blue");
+				//part 3
+				drawBackgroundSection(foregroundRight.start,foregroundRight.end, yScrollOffset1, "red");
+				//part 4
+				drawBackgroundSection(foregroundRight.start,foregroundRight.end, yScrollOffset2, "blue");
+				
+				
+				//part 1
+				drawBackgroundSection(backgroundLeft.start,backgroundLeft.end, yScrollOffsetA, "red"); 
+				//part 2
+				drawBackgroundSection(backgroundLeft.start,backgroundLeft.end, yScrollOffsetB, "blue");
+				//part 3
+				drawBackgroundSection(backgroundRight.start,backgroundRight.end, yScrollOffsetA, "red");
+				//part 4
+				drawBackgroundSection(backgroundRight.start,backgroundRight.end, yScrollOffsetB, "blue");
+				
+				
+				
+				//part 1
+				//drawBackgroundSection(canvas.width / 4, (canvas.width / 4) + (canvas.width / 8), yScrollOffsetA, "red"); 
+				//part 2
+				//drawBackgroundSection(canvas.width / 4, (canvas.width / 4) + (canvas.width / 8), yScrollOffsetB, "blue");
+				
+				/*ctx.beginPath();
+				ctx.moveTo(0, yScrollOffset2);
+				ctx.lineTo(canvas.width / 4, yScrollOffset2);
+				ctx.lineTo(canvas.width / 4, yScrollOffset2 + canvas.height);
+				ctx.lineTo(0, yScrollOffset2 + canvas.height);
+				ctx.closePath();
+				ctx.fillStyle = "blue";
+				ctx.fill();
+				ctx.stroke();*/
+				yScrollOffset1 -= scrollSpeed1;
+				yScrollOffset2 -= scrollSpeed1;
+				if (yScrollOffset1 == -canvas.height){
+					yScrollOffset1 = canvas.height;
+				}
+				if (yScrollOffset2 == -canvas.height){
+					yScrollOffset2 = canvas.height;
+				}
+				yScrollOffsetA -= scrollSpeed2;
+				yScrollOffsetB -= scrollSpeed2;
+				if (yScrollOffsetA == -canvas.height){
+					yScrollOffsetA = canvas.height;
+				}
+				if (yScrollOffsetB == -canvas.height){
+					yScrollOffsetB = canvas.height;
+				}
+			}
+			
+			const Scoreboard = () => {
+				const score = {high: 1000, own: 0};
+				let start = 0;
+				
+				const reset = () => {
+					start = Date.now();
+					score.own = 0;
+				}
+				const draw = () => {
+					ctx.fillStyle = 'lightgrey';
+					ctx.fillRect(20,canvas.height - 70,canvas.width-30, 60);
+					ctx.fillStyle = 'black';
+					ctx.font = "30px Arial";
+					ctx.textAlign = "left";
+					ctx.fillText("High Score: "+score.high, 40, canvas.height - 28);
+					ctx.textAlign = "right";
+					ctx.fillText("Own Score: "+score.own, canvas.width - 40, canvas.height - 28);
+				}
+				
+				const update = () => {
+					score.own += (Date.now() - start);
+					
+					if (score.own > score.high){
+						score.high = score.own;
+					}
+					start = Date.now();
+				}
+				
+				return { reset, draw, update }
+			}
+			
+			
+			const  drawTitle = () => {
+				ctx.fillStyle = 'black';
+				ctx.font = "80px Arial";
+				ctx.textAlign = "center";
+				ctx.fillText("Free Fall 2019", canvas.width/2, canvas.height/2);
+			}
+			
+			const  drawGameOver = () => {
+				ctx.fillStyle = 'black';
+				ctx.font = "80px Arial";
+				ctx.textAlign = "center";
+				ctx.fillText("Game Over", canvas.width/2, canvas.height/2);
+			}
+			
+			const checkPlayerInBoundsOfScreen = () => {
+				if (player.getPosition().y > canvas.height  || player.getPosition().y < 20){
+					state = 'gameover';
+					player.setPosition(canvas.width/2, 50);
+					gameDirector.resetGame();
+				}
+			}
+			
+			const moveLeft = () => {
+			}
+			
+			const moveRight = () => {
+			}
+			
+			const jump = () => {
+			}
+			
+			const duck = () => {
+			}
+			
+			
+			const checkKeyBoard =(e) => {
+				switch (state){
+					case 'title':
+						state = 'game';
+						gameDirector.scoreboard.reset();
+						gameDirector.spawnPlatforms();
+					break;
+					case 'game':
+						player.setState(e.keyCode);
+					break;
+					case 'gameover':
+						state = 'title';
+					break;
+				}  
+			}
+			
+			const releaseKey =() => {
+				player.setState(null);
+			}
+			let state = 'title';
+			const player =  Player(220,100);
+			const gameDirector = GameDirector();
+			
+			const loop = () => {
+				ctx.clearRect(0,0, canvas.width, canvas.height);
+				drawBackground();
+				switch (state){
+					case 'title':
+						drawTitle();
+					break;
+					
+					case 'game':
+						gameDirector.scoreboard.update();
+						player.move();
+						gameDirector.movePlatforms();
+						if (!gameDirector.collidedWithPlatform(player))
+							player.drop();		
+						checkPlayerInBoundsOfScreen();
+						
+						gameDirector.scoreboard.draw();
+						player.draw();
+						gameDirector.drawPlatforms();
+					break;
+					
+					case 'gameover':
+						drawGameOver();
+					break;
+				}
+				window.requestAnimationFrame(loop);
+			}
+			
+			window.requestAnimationFrame(loop);
+			window.addEventListener('keydown', checkKeyBoard, false);
+			window.addEventListener('keyup', releaseKey, false);
+		</script>
+	</body>
+</html>
