@@ -22,4 +22,13 @@ Breaking down the sittings to 1 to 2 hours has lead to a defined achievable goal
 Worked on the random platform generator so platforms and allowed for the platforms to distributed across the width of the screen evenly by calculating the space needed between platforms. I also implemented a spawn time so the plaforms so multiple rows of platforms can be spawned between intervals.  I had some slow down of drawing which was due to test output so went through the code and clear out these as they are no long need. Introduced my self to the [].reduce function which I have heard of but never used before.  
 
 8 hr
-Added a small bit of animation so to get that started, a kind of a head bob. Added player gravity, increasing the fall rate when dropping.  Added friction and accleration and deceleration, player ramps up the speed until they reach the max speed when walking on a platform, player will slide when changing direction and forward speed will decrease to zero when dropping.  Identified a few bugs which I will fix in the next session along with a bit of code refactoring.
+Added a small bit of animation so to get that started, a kind of a head bob. Added player gravity, increasing the fall rate when dropping.  Added friction and accleration and deceleration, player ramps up the speed until they reach the max speed when walking on a platform, player will slide when changing direction and forward speed will decrease to zero when dropping.  Identified a few bugs which I will fix in one of the next session.
+
+9 hrs
+Some code refactoring, grabed some graphics from https://opengameart.org to use as platform grapics and build a sprite sheet routinue to display the individual plaform graphics.  Started splitting out the main loop into seperate draw and update sections.
+https://itch.io/
+https://opengameart.org/content/handpainted-platform-tileset
+https://opengameart.org/content/block-breaking-block-pack-hd2
+https://opengameart.org/content/ball-set-svg
+https://www.fosshub.com/Synfig.html
+https://twitter.com/GameDev_studio
