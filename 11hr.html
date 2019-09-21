@@ -1,0 +1,92 @@
+<DOCTYPE html>
+<html lang="eng">
+	<head>
+	</head>
+	<body>
+		<canvas id="canvas" width="800" height="600"></canvas>
+		<script>
+		
+		
+			const canvas = document.getElementById('canvas');
+			const ctx = canvas.getContext('2d');
+			function getRandomArbitrary(min, max) {
+				return Math.random() * (max - min) + min;
+			}
+
+			function getRandomInt(min, max) {
+				min = Math.ceil(min);
+				max = Math.floor(max);
+				return Math.floor(Math.random() * (max - min + 1)) + min;
+			}
+			
+			const drawHex = (strokeColour, fillColour, lineWidth, size, x, y) => {
+				ctx.beginPath();
+				ctx.moveTo(x + size * Math.cos(0), y + size * Math.sin(0));
+				let corners = [];
+				for (let side = 0; side < 7; side++) {
+				
+				  let newX = x + size * Math.cos(side * 2 * Math.PI / 6);
+				  let newY = y + size * Math.sin(side * 2 * Math.PI / 6);
+				  ctx.lineTo(newX, newY);
+				  corners.push({x:newX, y:newY});
+				}
+				ctx.lineWidth = lineWidth;
+				//if (getRandomInt(0,1) == 1){
+				if (fillColour != null ){
+					ctx.fillStyle = fillColour;
+					ctx.fill();
+				}
+				//}
+				if (strokeColour != null ){
+					ctx.strokeStyle = strokeColour;
+					ctx.stroke();
+				}
+					let i=0;
+					for(corner of corners){
+					//console.log(getRandomArbitrary(0,4));
+					if (getRandomInt(0,4) == 0){
+						ctx.beginPath();
+						ctx.ellipse(corner.x, corner.y, 2, 2,0, 0, 2 * Math.PI);
+						ctx.stroke();
+						}
+						i++;
+					};
+				
+			}
+			
+			
+			ctx.fillStyle = "black";
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			let  x = 100, y = 100;
+			
+			//use https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Colors/Color_picker_tool for colours
+			
+			
+			
+			
+			//foreground
+			const drawGroup = (dimension, size, strokeColour, fillColour, lineWidth) => {
+				let yMultiplier =0;
+				let yOffset = size - (size / 7.5);
+				let xOffset = size + size / 2;
+				for (let i = 0; i < 10 * dimension; i++){
+					drawHex(strokeColour, fillColour, lineWidth, size, 0, yOffset * yMultiplier);
+					yMultiplier += 2;
+				}
+				 yMultiplier =0;
+				for (let i = 0; i < 10 * dimension; i++){
+					if (i % 2 == 0){
+						drawHex(strokeColour, fillColour, lineWidth, size, xOffset,yOffset + yOffset * yMultiplier);
+						
+					}
+					yMultiplier += 2;
+				}
+			}
+		
+			drawGroup(1, 100, 'rgba(63,127,191,0.4)', 'rgba(63,127,191,0.1)', 1);
+			drawGroup(2, 50, 'rgba(63,255,255,0.5)', 'rgba(63,127,191,0.4)',1 );
+			
+		
+		</script>
+	</body>
+</html>

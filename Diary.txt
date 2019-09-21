@@ -35,3 +35,10 @@ https://twitter.com/GameDev_studio
 
 10hr
 Updated the platform draw code to use the new graphics and modified the plaform class, plaform spawner and plaform bounds detection to take into width in x * 32 pixel units, the width of the graphic rather than an overall length.  Identified a few bugs; when the player first starts they cannot travel left or right through the air as I have removed this ability to make the game harder.  when running on the plaforms the forward momentum will decrease due to air friction as in real life.  As the player has no momentum then they just travel straight down when the game starts sometimes missing all a plaform and ending up leaving the bottom of the screen.  I need to allow the player to move left or right whilst falling for the firt drop.  The player animation doesn;t work when travelling left.  Also the source is becoming hard to work with.  I need to section it out into a class per page.
+
+11hr 
+Looking at some graphics for the parallax scroll.  After a bit of image searching through the internet for insperation I decided that I would use a simple transparent hex background.  Put together the code in a seperate html file so I can play about with creating hexagons in different formations and colours until I get something close to what I want.  Finished with 2 groups of hexagons running down the left hand of the screen the smaller hexagons are the foreground the larger the back.
+
+13 hr
+Woked on the layout so once the hexagon groups would be produced as images they would seamlessly scroll.  After which I needed to get these out of the canvas as seperate images.
+Getting the code down to actually produce these as usable transparent images which was a bit harder than I thought.  Luckly someone had perfected the task which I was able to lift to my code.  Finished with some code clean up and arrange the images onscreen to where they would be in the game

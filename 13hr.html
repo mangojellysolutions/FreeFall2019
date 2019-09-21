@@ -1,0 +1,190 @@
+<DOCTYPE html>
+<html lang="eng">
+	<head>
+	</head>
+	<body>
+		<canvas id="canvas" width="800" height="600"></canvas>
+			<canvas id="newCanvas" width="800" height="600"></canvas>
+		<script>
+		
+		//use https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Colors/Color_picker_tool for colours
+			
+			const canvas = document.getElementById('canvas');
+			const thisCtx = canvas.getContext('2d');
+			
+			//Returns contents of a canvas as a png based data url, with the specified
+			//background color
+			const canvasToImage = (theCanvas,context,backgroundColor) => {
+			//function canvasToImage(theCanvas,context,backgroundColor)
+			
+				//cache height and width		
+				var w = canvas.width;
+				var h = canvas.height;
+
+				var data;		
+
+				if(backgroundColor){
+					//get the current ImageData for the canvas.
+					data = context.getImageData(0, 0, w, h);
+					
+					//store the current globalCompositeOperation
+					var compositeOperation = context.globalCompositeOperation;
+
+					//set to draw behind current content
+					context.globalCompositeOperation = "destination-over";
+
+					//set background color
+					context.fillStyle = backgroundColor;
+
+					//draw background / rect on entire canvas
+					context.fillRect(0,0,w,h);
+				}
+
+				//get the image data from the canvas
+				var imageData = theCanvas.toDataURL("image/png");
+
+				if(backgroundColor){
+					//clear the canvas
+					context.clearRect (0,0,w,h);
+
+					//restore it with original / cached ImageData
+					context.putImageData(data, 0,0);		
+
+					//reset the globalCompositeOperation to what it was
+					context.globalCompositeOperation = compositeOperation;
+				}
+
+				//return the Base64 encoded data url string
+				return imageData;
+			}
+
+			const getRandomArbitrary = (min, max) =>  Math.random() * (max - min) + min; 			
+
+			const getRandomInt = (min, max) => {
+				min = Math.ceil(min);
+				max = Math.floor(max);
+				return Math.floor(Math.random() * (max - min + 1)) + min;
+			}
+			
+			const drawHex = (ctx, strokeColour, fillColour, lineWidth, size, x, y) => {
+				ctx.beginPath();
+				ctx.moveTo(x + size * Math.cos(0), y + size * Math.sin(0));
+				let corners = [];
+				for (let side = 0; side < 7; side++) {
+				
+				  let newX = x + size * Math.cos(side * 2 * Math.PI / 6);
+				  let newY = y + size * Math.sin(side * 2 * Math.PI / 6);
+				  ctx.lineTo(newX, newY);
+				  corners.push({x:newX, y:newY});
+				}
+				ctx.lineWidth = lineWidth;
+				//if (getRandomInt(0,1) == 1){
+				if (fillColour != null ){
+					ctx.fillStyle = fillColour;
+					ctx.fill();
+				}
+				//}
+				if (strokeColour != null ){
+					ctx.strokeStyle = strokeColour;
+					ctx.stroke();
+				}
+					let i=0;
+					for(corner of corners){
+					//console.log(getRandomArbitrary(0,4));
+					if (getRandomInt(0,4) == 0){
+						ctx.beginPath();
+						ctx.ellipse(corner.x, corner.y, 2, 2,0, 0, 2 * Math.PI);
+						ctx.stroke();
+						}
+						i++;
+					};
+				
+			}
+					
+			const drawGroup = (ctx, dimension, size, strokeColour, fillColour, lineWidth) => {
+				let yMultiplier =0;
+				let yOffset = size - (size / 7.5);
+				let xOffset = size + size / 2;
+				for (let i = 0; i < 10 * dimension; i++){
+					drawHex(ctx,strokeColour, fillColour, lineWidth, size, 0, yOffset * yMultiplier);
+					yMultiplier += 2;
+				}
+				 yMultiplier =0;
+				for (let i = 0; i < 10 * dimension; i++){
+					if (i % 2 == 1){
+						drawHex(ctx,strokeColour, fillColour, lineWidth, size, xOffset,yOffset + yOffset * yMultiplier);
+						
+					}
+					yMultiplier += 2;
+				}
+			}
+		
+			//Clear the canvas with full transparency
+			thisCtx.fillStyle = 'rgba(0,0,0,0.0)';
+			thisCtx.fillRect(0, 0, canvas.width, canvas.height);
+		
+		//	drawGroup(thisCtx, 1, 115, 'rgba(63,255,255,0.2)', 'rgba(63,8,191,0.3)', 1);
+		
+			const agetImage = (width, height) => {
+				let newCanvas = document.createElement('canvas');
+				newCanvas.width = 115 * 2.5;
+				newCanvas.height = canvas.height;
+				newCtx = newCanvas.getContext('2d');
+				//fill the canvas with full transparency
+				newCtx.fillStyle = 'rgba(0,0,0,0.0)';
+				newCtx.fillRect(0, 0, canvas.width, canvas.height);
+				newCtx.drawImage(canvas,0,0,newCanvas.width, newCanvas.height,0,0,newCanvas.width, newCanvas.height);
+				//let data = newCtx.getImageData(0, 0, newCanvas.width, newCanvas.height);
+				var newImage = document.createElement('img');
+				//create a png with full tansparency
+				newImage.src = canvasToImage(newCanvas,newCtx,'rgba(00,0,0,0.0)');
+				newCanvas = null;
+				return newImage;
+			}
+			
+			const getImage = (width, height, strokeColour, fillColour) => {
+				let newCanvas = document.createElement('canvas');
+				newCanvas.width = width * 2.5;
+				newCanvas.height = height;
+				newCtx = newCanvas.getContext('2d');
+				//fill the canvas with full transparency
+				newCtx.fillStyle = 'rgba(0,0,0,0.0)';
+				newCtx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+				drawGroup(newCtx, 1, width, strokeColour,fillColour, 1);
+		
+				var newImage = document.createElement('img');
+				//create a png with full tansparency
+				newImage.src = canvasToImage(newCanvas,newCtx,'rgba(00,0,0,0.0)');
+				newCanvas = null;
+				return newImage;
+			}
+			let backGround = getImage( 115 , canvas.height, 'rgba(63,255,255,0.2)',  'rgba(63,8,191,0.3)');
+			let foreGround =  getImage( 50  , canvas.height, 'rgba(63,255,255,0.5)',  'rgba(63,127,191,0.4)');
+			
+			thisCtx.fillStyle = 'black';
+			thisCtx.fillRect(0, 0, canvas.width, canvas.height);
+			
+			foreGround.onload = function() {
+				thisCtx.save();
+				thisCtx.translate(canvas.width, 0);
+				thisCtx.scale(-1, 1);
+				thisCtx.drawImage(backGround,0,0);
+				thisCtx.drawImage(foreGround,0,0);
+				thisCtx.restore();
+				thisCtx.drawImage(backGround,0,0);
+				thisCtx.drawImage(foreGround,0,0);
+				
+			};
+			
+			
+			
+			
+			//drawGroup(2, 50, 'rgba(63,255,255,0.5)', 'rgba(63,127,191,0.4)',1 );
+			
+			
+			
+		
+
+		</script>
+	</body>
+</html>
