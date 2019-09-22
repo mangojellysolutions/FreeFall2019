@@ -42,3 +42,6 @@ Looking at some graphics for the parallax scroll.  After a bit of image searchin
 13 hr
 Woked on the layout so once the hexagon groups would be produced as images they would seamlessly scroll.  After which I needed to get these out of the canvas as seperate images.
 Getting the code down to actually produce these as usable transparent images which was a bit harder than I thought.  Luckly someone had perfected the task which I was able to lift to my code.  Finished with some code clean up and arrange the images onscreen to where they would be in the game
+
+14 hr 
+Added new style platforms to the hexzgon background so it ties in nicely and worked on generation and spacing logic which is going back to the vector drawing rather than the sprite sheet.  Also would like to add a speed difference when the platforms move.  The smaller the plaform the faster it will move so you will get plaform cross over making the game harder.
