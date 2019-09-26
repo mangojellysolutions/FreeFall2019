@@ -45,3 +45,7 @@ Getting the code down to actually produce these as usable transparent images whi
 
 14 hr 
 Added new style platforms to the hexzgon background so it ties in nicely and worked on generation and spacing logic which is going back to the vector drawing rather than the sprite sheet.  Also would like to add a speed difference when the platforms move.  The smaller the plaform the faster it will move so you will get plaform cross over making the game harder.
+
+15hr Applied hexagon background to the main game
+
+16hr P1 Playing with a neon effect for the hexagons. P2 applying to the game but something hasn't quite worked.
