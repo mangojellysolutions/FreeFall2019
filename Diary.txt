@@ -48,4 +48,7 @@ Added new style platforms to the hexzgon background so it ties in nicely and wor
 
 15hr Applied hexagon background to the main game
 
-16hr P1 Playing with a neon effect for the hexagons. P2 applying to the game but something hasn't quite worked.
+16hr Playing with a neon effect for the hexagons.
+
+17hr Applied neon hexagon background to game.  Also applied the new style vector drawn plaforms but only for the smallest platform and produced these as a neon effect.  The draw rate is now slow so may have to create these as graphics.
+

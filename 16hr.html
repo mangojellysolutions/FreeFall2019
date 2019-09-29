@@ -1,0 +1,130 @@
+<DOCTYPE html>
+<html lang="eng">
+	<head>
+	<style>
+		#board {
+		  background: #060606;
+		  float: left;
+		  display: block;
+		}
+		body {
+		  background: #000;
+		  color: #fff;
+		}
+		.content{
+		  float: left;
+		  padding: 0 3rem;
+		}
+		h1 {
+		  line-height: 1rem;
+		}
+	</style>
+	</head>
+	<body>
+		<canvas id="board" width="800" height="600"></canvas>
+		<script>
+		var canvas = document.getElementById('board');
+		var ctx = canvas.getContext('2d');
+		ctx.lineJoin = "round";
+		ctx.globalCompositeOperation = "lighter";
+		const drawHex = (ctx, strokeColour, fillColour , size, x, y) => {
+			ctx.beginPath();
+			ctx.moveTo(x + size * Math.cos(0), y + size * Math.sin(0));
+			
+			for (let side = 0; side < 7; side++) {
+			
+			  let newX = x + size * Math.cos(side * 2 * Math.PI / 6);
+			  let newY = y + size * Math.sin(side * 2 * Math.PI / 6);
+			  ctx.lineTo(newX, newY);
+			}
+			
+			//if (getRandomInt(0,1) == 1){
+			if (fillColour != null ){
+				ctx.fillStyle = fillColour;
+				ctx.fill();
+			}
+			//}
+			if (strokeColour != null ){
+				ctx.strokeStyle = strokeColour;
+				ctx.stroke();
+			}
+			
+		}
+		const drawRectangle = (x, y, w, h, border) => {
+		  ctx.beginPath();
+		  ctx.moveTo(x+border, y);
+		  ctx.lineTo(x+w-border, y);
+		  ctx.quadraticCurveTo(x+w-border, y, x+w, y+border);
+		  ctx.lineTo(x+w, y+h-border);
+		  ctx.quadraticCurveTo(x+w, y+h-border, x+w-border, y+h);
+		  ctx.lineTo(x+border, y+h);
+		  ctx.quadraticCurveTo(x+border, y+h, x, y+h-border);
+		  ctx.lineTo(x, y+border);
+		  ctx.quadraticCurveTo(x, y+border, x+border, y);
+		  ctx.closePath();
+		  ctx.stroke();
+		}
+		var neonRect = function(x,y,w,h,r,g,b){
+		ctx.shadowColor = "rgb("+r+","+g+","+b+")";
+		ctx.shadowBlur = 10;
+		ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+		ctx.lineWidth=7.5;
+		drawRectangle(x,y,w,h,1.5);
+		ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+		ctx.lineWidth=6;
+		drawRectangle(x,y,w,h,1.5);
+		ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+		ctx.lineWidth=4.5;
+		drawRectangle(x,y,w,h,1.5);
+		ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+		ctx.lineWidth=3;
+		drawRectangle(x,y,w,h,1.5);
+		ctx.strokeStyle= '#fff';
+		ctx.lineWidth=1.5;
+		drawRectangle(x,y,w,h,1.5);
+		};
+
+		var neonHex = function(x,y,w,h,r,g,b, fillColour){
+		ctx.shadowColor = "rgb("+r+","+g+","+b+")";
+		ctx.shadowBlur = 10;
+		ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+		ctx.lineWidth=7.5;
+		drawHex(ctx, ctx.strokeStyle, null, 50, x, y);
+		ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+		ctx.lineWidth=6;
+		drawHex(ctx, ctx.strokeStyle, null, 50, x, y);
+		ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+		ctx.lineWidth=4.5;
+		drawHex(ctx, ctx.strokeStyle, null, 50, x, y);
+		ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+		ctx.lineWidth=3;
+		drawHex(ctx, ctx.strokeStyle, null, 50, x, y);
+		ctx.strokeStyle= '#fff';
+		ctx.lineWidth=1.5;
+		drawHex(ctx, ctx.strokeStyle, fillColour, 50, x, y);
+		};
+
+		function draw(x, y){
+		neonHex(100+x,100+y,50,50,243,243,21, null);
+		//neonRect(225-x,25+y,50,50,193,253,51);
+		neonHex(225-x,25+y,50,50,193,253,51, null);
+		neonHex(25+x,225-y,50,50,255,153,51, null);
+
+		neonHex(225-x,225-y,50,50,252,90,184, null);
+		neonHex(125,125,50,50,13,213,252,null);  
+		}
+		var x =0;
+		var y = 0;
+		function loop(){
+		 ctx.fillStyle = 'black';
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+		  draw(x, y);
+		  requestAnimationFrame(loop);
+		}
+
+		requestAnimationFrame(loop);
+
+
+		</script>
+	</body>
+</html>
