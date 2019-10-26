@@ -1,0 +1,620 @@
+<DOCTYPE html>
+<html lang="eng">
+	<head>
+	</head>
+	<body>
+		<canvas id="canvas" width="800" height="600"></canvas>
+		<script>
+			const canvas = document.getElementById('canvas');
+			const ctx = canvas.getContext('2d');
+			const spriteSheet = new Image();
+			const mainBackground = new Image();
+			
+			const brickSize = {width: 64, height: 32};
+			
+			spriteSheet.src = "grafix/bricks.png";
+			mainBackground.src = "grafix/stars.jpg";
+			function getRandomArbitrary(min, max) {
+				return Math.random() * (max - min) + min;
+			}
+
+			function getRandomInt(min, max) {
+				min = Math.ceil(min);
+				max = Math.floor(max);
+				return Math.floor(Math.random() * (max - min + 1)) + min;
+			}
+			const getImage = (width, height, r,g,b, fillColour) => {
+				let newCanvas = document.createElement('canvas');
+				newCanvas.width = width * 2.5;
+				newCanvas.height = height;
+				newCtx = newCanvas.getContext('2d');
+				//fill the canvas with full transparency
+				newCtx.fillStyle = 'rgba(0,0,0,0.0)';
+				newCtx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+				drawGroup(newCtx, 1, width, r,g,b,fillColour, 1);
+				var newImage = document.createElement('img');
+				//create a png with full tansparency
+				newImage.src = canvasToImage(newCanvas,newCtx,'rgba(00,0,0,0.0)');
+				newCanvas = null;
+				return newImage;
+			}		
+			const canvasToImage = (theCanvas,context,backgroundColor) => {	
+				var w = canvas.width;
+				var h = canvas.height;
+				var data;		
+				if(backgroundColor){
+					//get the current ImageData for the canvas.
+					data = context.getImageData(0, 0, w, h);
+					
+					//store the current globalCompositeOperation
+					var compositeOperation = context.globalCompositeOperation;
+
+					//set to draw behind current content
+					context.globalCompositeOperation = "destination-over";
+
+					//set background color
+					context.fillStyle = backgroundColor;
+
+					//draw background / rect on entire canvas
+					context.fillRect(0,0,w,h);
+				}
+
+				//get the image data from the canvas
+				var imageData = theCanvas.toDataURL("image/png");
+
+				if(backgroundColor){
+					//clear the canvas
+					context.clearRect (0,0,w,h);
+
+					//restore it with original / cached ImageData
+					context.putImageData(data, 0,0);		
+
+					//reset the globalCompositeOperation to what it was
+					context.globalCompositeOperation = compositeOperation;
+				}
+
+				//return the Base64 encoded data url string
+				return imageData;
+			}
+			const drawGroup = (ctx, dimension, size, r,g,b, fillColour, lineWidth) => {
+				let yMultiplier =0;
+				let yOffset = size - (size / 7.5);
+				let xOffset = size + size / 2;
+				for (let i = 0; i < 10 * dimension; i++){
+					//drawHex(ctx,strokeColour, fillColour, lineWidth, size, 0, yOffset * yMultiplier);
+					neonHex(ctx,r,g,b, fillColour, size, 0, yOffset * yMultiplier);
+					yMultiplier += 2;
+				}
+				 yMultiplier =0;
+				for (let i = 0; i < 10 * dimension; i++){
+					if (i % 2 == 1){
+						neonHex(ctx,r,g,b, fillColour, size, xOffset,yOffset + yOffset * yMultiplier);
+						
+					}
+					yMultiplier += 2;
+				}
+			}
+	
+			
+			var neonHex = function(ctx,r,g,b, fillColour,size,x,y){
+			ctx.shadowColor = "rgb("+r+","+g+","+b+")";
+			ctx.shadowBlur = 10;
+			ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+			ctx.lineWidth=7.5;
+			drawHex(ctx, ctx.strokeStyle, null, size, x, y);
+			ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+			ctx.lineWidth=6;
+			drawHex(ctx, ctx.strokeStyle, null, size, x, y);
+			ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+			ctx.lineWidth=4.5;
+			drawHex(ctx, ctx.strokeStyle, null, size, x, y);
+			ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+			ctx.lineWidth=3;
+			drawHex(ctx, ctx.strokeStyle, null, size, x, y);
+			ctx.strokeStyle= '#fff';
+			ctx.lineWidth=1.5;
+			drawHex(ctx, ctx.strokeStyle, fillColour, size, x, y);
+			};
+			
+			const drawHex = (ctx, strokeColour, fillColour , size, x, y) => {
+				ctx.beginPath();
+				ctx.moveTo(x + size * Math.cos(0), y + size * Math.sin(0));
+				
+				for (let side = 0; side < 7; side++) {
+				
+				  let newX = x + size * Math.cos(side * 2 * Math.PI / 6);
+				  let newY = y + size * Math.sin(side * 2 * Math.PI / 6);
+				  ctx.lineTo(newX, newY);
+				}
+				
+				//if (getRandomInt(0,1) == 1){
+				if (fillColour != null ){
+					ctx.fillStyle = fillColour;
+					ctx.fill();
+				}
+				//}
+				//if (strokeColour != null ){
+					//ctx.strokeStyle = strokeColour;
+					ctx.stroke();
+				//}
+				
+			}
+			
+			let backGround = getImage( 115 , canvas.height, 63,255,255,  'rgba(63,8,191,0.3)');
+			let foreGround =  getImage( 50  , canvas.height, 63,255,255,  'rgba(63,127,191,0.4)');
+		
+			const GameDirector = () => {
+				const scoreboard = Scoreboard();
+				const spawnInterval = 150000;
+				let timeElaspedSinceLastSpawn = 0;
+				let platforms = [];
+				let spawnedAt = 0;
+				
+			
+				const resetGame = () => {
+					scoreboard.reset();
+					platforms = [];
+				}
+				//GrafixPlatform(5,5).draw(2);
+				const spawnPlatforms = () => {
+					const maxNoOfPlatforms = Math.floor((canvas.width - brickSize.width) / brickSize.width);
+					//Less number of platforms the harder the game
+					const noOfPlatforms = getRandomInt(1,maxNoOfPlatforms);
+					
+				const maxWidth = Math.floor(maxNoOfPlatforms / noOfPlatforms);
+					
+					
+					let offSetStart = getRandomInt(0,1);
+					let platformSize = getRandomInt(1,maxWidth);
+					
+					//get the plaform widths to use
+					let randomPlatformWidths = [];
+					for (let i = 0; i < noOfPlatforms; i++){
+						platformSize = getRandomInt(1,maxWidth);
+						randomPlatformWidths.push( platformSize );
+					}
+					
+					let sumOfPlatformWidths = randomPlatformWidths.reduce( (acc, val) => { 
+						return acc + val; 
+					} , 0);
+					
+					let emptySpaceDistribution = (canvas.width - (sumOfPlatformWidths * brickSize.width));// / noOfPlatforms;
+					
+					let x = (offSetStart == 1 ? emptySpaceDistribution : 0);
+					for (platformWidth of randomPlatformWidths){
+						platforms.push(Platform(x, canvas.height, platformWidth * brickSize.width));
+						x += (platformWidth * brickSize.width) + emptySpaceDistribution;
+					}
+				
+					spawnAt = Date.now();
+				}
+				
+			
+				
+				const drawPlatforms = () => {
+					for (platform of platforms){
+						platform.draw();
+					}
+				}
+				
+				const collidedWithPlatform = (thePlayer) => {
+					for (platform of platforms){
+						if (platform.inBounds(thePlayer.getPosition().x, thePlayer.getPosition().y)){
+							thePlayer.getPosition().y = platform.getPosition().y;
+							return true;
+						}
+					}
+				}
+				
+				const movePlatforms = () => {
+					let deleted = false;
+					for (let i = platforms.length-1; i > -1 ; i--){
+						platforms[i].move();
+						if (platforms[i].getPosition().y == 0){
+							delete platforms[i];
+							deleted = true;
+						}	
+					}
+					
+					if (deleted){
+						let temp = [];	
+						for(let i of platforms){
+							i && temp.push(i); // copy each non-empty value to the 'temp' array
+							platforms = temp;
+						}
+					}
+					timeElaspedSinceLastSpawn += (Date.now() - spawnAt);
+					if (timeElaspedSinceLastSpawn > spawnInterval){
+						spawnPlatforms();
+						timeElaspedSinceLastSpawn = 0;
+					}
+				}
+				return { resetGame, spawnPlatforms, drawPlatforms, collidedWithPlatform, movePlatforms, scoreboard }
+			}
+					
+			const Platform = (x, y, width) => {
+				const r = 63;
+				const g = 255;
+				const b = 255;
+				const strokeColour = 'rgba(63,255,255,0.2)';
+				const fillColour =  'rgba(200,8,191,0.3)';
+				const lineWidth = 2;
+				console.log(width);
+			
+				const speed = (width / brickSize.width);
+				console.log('speed',speed);
+				const position  = { x:x, y:y };
+				let height = 64;
+				const drawNeonPlatform = () => {
+					ctx.save();
+					ctx.shadowColor = "rgb("+r+","+g+","+b+")";
+					ctx.shadowBlur = 10;
+					ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+					ctx.lineWidth=7.5;
+					drawPlatform();
+					ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+					ctx.lineWidth=6;
+					drawPlatform();
+					ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+					ctx.lineWidth=4.5;
+					drawPlatform();
+					ctx.strokeStyle= "rgba("+r+","+g+","+b+",0.2)";
+					ctx.lineWidth=3;
+					drawPlatform();
+					ctx.strokeStyle= '#fff';
+					ctx.lineWidth=1.5;
+					drawPlatform();
+					ctx.restore();
+				}
+				
+				const drawPlatform = () => {
+					ctx.beginPath();
+					ctx.moveTo(position.x , position.y );
+					let corners = [];
+					let newX = position.x + width;
+					let newY = position.y;
+					  ctx.lineTo(newX, newY);
+					  corners.push({x:newX, y:newY});
+					  newY = position.y + height;
+					  newX = newX -= (height/2);
+					  ctx.lineTo(newX, newY);
+					  corners.push({x:newX, y:newY});
+					  newX -= width - height;
+					  ctx.lineTo(newX, newY);
+					  corners.push({x:newX, y:newY});
+					  newX -= (height/2);
+					  newY -= height;
+					  ctx.lineTo(newX, newY);
+					  corners.push({x:newX, y:newY});
+					ctx.lineWidth = lineWidth;
+				
+					//if (fillColour != null ){
+					//	ctx.fillStyle = fillColour;
+					//	ctx.fill();
+					//}
+					
+					//if (strokeColour != null ){
+					//	ctx.strokeStyle = strokeColour;
+						ctx.stroke();
+					//}
+				}
+				
+				const draw = () => {
+					drawNeonPlatform();
+				}
+				
+				const move = () => {
+					position.y -= speed;
+				}
+				
+				const inBounds = (testX, testY) => {
+					
+					if (testX >= position.x && testX <= position.x + width){
+						if(testY >= position.y && testY <= position.y + height){
+							return true;
+						}
+					}
+					return false;
+				}
+				
+				const getPosition = () => { return position; }
+				return { draw, move, inBounds, getPosition }
+			}
+			
+			const Player = (x ,y) => {
+				const position  = { x:x, y:y };
+				let speed = 0;
+				const defaultFallRate = 2;
+				const maxFallRate = 10;
+				let refreshCount = 0;
+				let frameIdx = 0;
+				let fallRate = defaultFallRate;
+				let state = 'static';
+				let distanceTravelled = 0;
+				let isFalling = false;
+				const setState = (keyCode) => {
+					if (isFalling){
+						state = 'falling';
+					} else {
+						switch(keyCode){
+							case 37: state = 'left'; break; //Left key
+							case 38: state = 'jump'; break;//Up key
+							case 39: state = 'right'; break; //Right key
+							case 40: state = 'duck'; break; //Down key
+							default: state = 'static'; break;
+						}
+					}
+				}
+				
+				const getPosition = () => { return position; }
+				
+				const setPosition = (x, y) => {
+					position.x = x;
+					position.y = y;
+				}
+				const animate = () => {
+					switch(state){
+						case 'left':
+						case 'right':
+							distanceTravelled += speed;
+							if (distanceTravelled > 20){
+								frameIdx ++;
+								if (frameIdx > 6){
+									frameIdx = 0;
+								}
+								distanceTravelled = 0;
+							}
+						break;
+					}
+					
+				}
+				const draw = () => {
+					let offset = frameIdx * 2;
+					if (frameIdx > 5){
+						offset -=10;
+					}
+					ctx.beginPath();
+					
+					ctx.moveTo(position.x,position.y);
+					ctx.lineTo(position.x+5, position.y-20);
+					ctx.lineTo(position.x-5, position.y-20);
+					ctx.lineTo(position.x, position.y);
+					ctx.ellipse(position.x, position.y-26+offset, 5, 5,0, 0, 2 * Math.PI);
+					ctx.font = "10px Arial";
+					ctx.fillText(frameIdx, position.x, position.y+10);
+					ctx.fill();	
+				}
+				const move = () => {
+					switch(state){
+						case 'left':
+								speed -= 0.1;
+								
+							break;
+						case 'right':
+								speed += 0.1;
+								
+							break;
+						default:
+							if (speed > 0){
+								speed -= 0.1;
+							}
+							if (speed < 0){
+								speed += 0.1;
+							}
+					}
+					if (position.x < 0)
+						position.x = canvas.width;
+					if (position.x > canvas.width)
+						position.x = 0;
+					position.x += speed;
+				}
+				
+				const reachedBottomOfScreen = () => {
+					if (position.y > canvas.width){
+						position.y = 0;
+						fallRate = defaultFallRate;
+					}
+				}
+				
+				const drop = (hasColliedWithPlatform) => {	
+					
+					if (hasColliedWithPlatform){
+						fallRate = defaultFallRate;
+						isFalling = false;
+					} else {
+						isFalling = true;
+						if (fallRate < maxFallRate){
+							fallRate = fallRate * 1.02;
+						}
+						position.y += fallRate;
+						reachedBottomOfScreen();
+					}
+				}
+				
+				return { draw, setState, move, drop, getPosition, setPosition, animate }
+			}
+			
+			const BackgroundHandler = () => {
+				let yScrollOffset1 = 0;
+				let yScrollOffset2 = canvas.height;
+				let yScrollOffsetA = 0;
+				let yScrollOffsetB = canvas.height;
+				let scrollSpeed1 = 8;
+				let scrollSpeed2 = 5;
+		
+				const update = () => {
+					yScrollOffset1 -= scrollSpeed1;
+					yScrollOffset2 -= scrollSpeed1;
+					if (yScrollOffset1 == -canvas.height){
+						yScrollOffset1 = canvas.height;
+					}
+					if (yScrollOffset2 == -canvas.height){
+						yScrollOffset2 = canvas.height;
+					}
+					yScrollOffsetA -= scrollSpeed2;
+					yScrollOffsetB -= scrollSpeed2;
+					if (yScrollOffsetA == -canvas.height){
+						yScrollOffsetA = canvas.height;
+					}
+					if (yScrollOffsetB == -canvas.height){
+						yScrollOffsetB = canvas.height;
+					}
+				}
+				//https://codepen.io/agar3s/pen/pJpoya
+				const draw = () => {
+					let foregroundLeft = {start: 0, end: canvas.width / 8};
+					let foregroundRight = {start: canvas.width - canvas.width / 8, end: canvas.width};
+					let backgroundLeft = {start: foregroundLeft.end, end: foregroundLeft.end + canvas.width / 8};
+					let backgroundRight = {start: foregroundRight.start - canvas.width / 8, end: foregroundRight.start};
+					const grd = ctx.createLinearGradient(0, canvas.height/1.25,0,0);
+					grd.addColorStop(0,"darkblue");
+					grd.addColorStop(1,"white");
+					//ctx.fillStyle = grd;
+					ctx.fillStyle = 'darkblue';
+					ctx.fillRect(0,0,canvas.width, canvas.height);
+					ctx.drawImage(mainBackground,0,0,canvas.width, canvas.height);
+				
+					ctx.save();
+					ctx.translate(canvas.width, 0);
+					ctx.scale(-1, 1);
+					ctx.drawImage(backGround,0,yScrollOffset1);
+					ctx.drawImage(backGround,0,yScrollOffset2);
+					
+					ctx.drawImage(foreGround,0,yScrollOffsetA);
+					ctx.drawImage(foreGround,0,yScrollOffsetB);
+					
+					ctx.restore();
+					ctx.drawImage(backGround,0,yScrollOffset1);
+					ctx.drawImage(backGround,0,yScrollOffset2);
+					
+					ctx.drawImage(foreGround,0,yScrollOffsetA);
+					ctx.drawImage(foreGround,0,yScrollOffsetB);
+					
+				}
+				return { draw, update }
+			}
+			
+			
+			
+			const Scoreboard = () => {
+				const score = {high: 1000, own: 0};
+				let start = 0;
+				
+				const reset = () => {
+					start = Date.now();
+					score.own = 0;
+				}
+				const draw = () => {
+					ctx.fillStyle = 'lightgrey';
+					ctx.fillRect(20,canvas.height - 70,canvas.width-30, 60);
+					ctx.fillStyle = 'black';
+					ctx.font = "30px Arial";
+					ctx.textAlign = "left";
+					ctx.fillText("High Score: "+score.high, 40, canvas.height - 28);
+					ctx.textAlign = "right";
+					ctx.fillText("Own Score: "+score.own, canvas.width - 40, canvas.height - 28);
+				}
+				
+				const update = () => {
+					score.own += (Date.now() - start);
+					
+					if (score.own > score.high){
+						score.high = score.own;
+					}
+					start = Date.now();
+				}
+				
+				return { reset, draw, update }
+			}
+			
+			
+			const  drawTitle = () => {
+				ctx.fillStyle = 'black';
+				ctx.font = "80px Arial";
+				ctx.textAlign = "center";
+				ctx.fillText("Free Fall 2019", canvas.width/2, canvas.height/2);
+			}
+			
+			const drawGameOver = () => {
+				ctx.fillStyle = 'black';
+				ctx.font = "80px Arial";
+				ctx.textAlign = "center";
+				ctx.fillText("Game Over", canvas.width/2, canvas.height/2);
+			}
+			
+			const checkPlayerInBoundsOfScreen = () => {
+				if (player.getPosition().y > canvas.height  || player.getPosition().y < 20){
+					state = 'gameover';
+					player.setPosition(canvas.width/2, 50);
+					//add player reset for speed fall rate, above etc
+					gameDirector.resetGame();
+				}
+			}
+			
+			const checkKeyBoard =(e) => {
+				switch (state){
+					case 'title':
+						state = 'game';
+						gameDirector.scoreboard.reset();
+						gameDirector.spawnPlatforms();
+					break;
+					case 'game':
+						player.setState(e.keyCode);
+					break;
+					case 'gameover':
+						state = 'title';
+					break;
+				}  
+			}
+			
+			const releaseKey = () => {
+				player.setState(null);
+			}
+			
+			
+			let state = 'title';
+			const player =  Player(220,100);
+			const gameDirector = GameDirector();
+			const backgroundHandler = BackgroundHandler();
+			
+			const update = () => {
+				backgroundHandler.update();
+			}
+			const loop = () => {
+				update();
+				ctx.clearRect(0,0, canvas.width, canvas.height);
+				
+				backgroundHandler.draw();
+				
+				
+				switch (state){
+					case 'title':
+						drawTitle();
+					break;
+					
+					case 'game':
+						gameDirector.scoreboard.update();
+						player.move();
+						player.animate();
+						gameDirector.movePlatforms();
+						player.drop(gameDirector.collidedWithPlatform(player));	
+						checkPlayerInBoundsOfScreen();
+						
+						gameDirector.scoreboard.draw();
+						player.draw();
+						gameDirector.drawPlatforms();
+					break;
+					
+					case 'gameover':
+						drawGameOver();
+					break;
+				}
+				window.requestAnimationFrame(loop);
+			}
+			
+			window.requestAnimationFrame(loop);
+			window.addEventListener('keydown', checkKeyBoard, false);
+			window.addEventListener('keyup', releaseKey, false);
+		</script>
+	</body>
+</html>

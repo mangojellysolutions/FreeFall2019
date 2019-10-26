@@ -52,3 +52,8 @@ Added new style platforms to the hexzgon background so it ties in nicely and wor
 
 17hr Applied neon hexagon background to game.  Also applied the new style vector drawn plaforms but only for the smallest platform and produced these as a neon effect.  The draw rate is now slow so may have to create these as graphics.
 
+18hr Added random spawning platform code to place the plaforms across the screen
+
+20hr Platform is now rendered to an image to speed up drawing.  Code clean up including seperation into seperate files for objects.
+
+21hr A number of different sized plaform images are now rendered.  More code clean up
