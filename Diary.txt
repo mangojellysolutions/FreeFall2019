@@ -57,3 +57,8 @@ Added new style platforms to the hexzgon background so it ties in nicely and wor
 20hr Platform is now rendered to an image to speed up drawing.  Code clean up including seperation into seperate files for objects.
 
 21hr A number of different sized plaform images are now rendered.  More code clean up
+
+22hr Created animation, implement async image loader, neatened up some code, 
+
+23hr Implemented player animation, fixed scoreboard layout, bug fixes
+
