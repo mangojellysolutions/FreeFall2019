@@ -9,9 +9,7 @@ const AssetHandler = () => {
 		 })
 	}
 	
-	const loadImage = async(imageUrl) => {
-	  return await getImage(imageUrl);
-	}
+	const loadImage = async(imageUrl) => await getImage(imageUrl);
 	
 	const renderPlaformToImage = (multiplier) => {
 		const r = 63;
@@ -91,33 +89,26 @@ const AssetHandler = () => {
 		const maxNoOfPlatforms = Math.floor((canvas.width - brickSize.width) / brickSize.width);
 		for (let i = 0; i < maxNoOfPlatforms; i++ )
 				platformImg.push(renderPlaformToImage(i+1).getImage());
-		
 	}
-	return {init }
+	return { init }
 }
+
 const assetHandler = AssetHandler();
 
-
-		
-		
 const GameDirector = () => {
-	
 	assetHandler.init();
-	
 	const scoreboard = Scoreboard();
 	const spawnInterval = 40000;
 	let timeElaspedSinceLastSpawn = 0;
 	let platforms = [];
 	let coins = []
 	let spawnedAt = 0;
-	//let platformImagesBuilt = false;
-
+	
 	const resetGame = () => {
 		scoreboard.reset();
 		platforms = [];
 		coins = [];
 	}
-	
 	
 	const getRandomInt = (min, max) =>{
 		min = Math.ceil(min);
@@ -129,14 +120,12 @@ const GameDirector = () => {
 		const maxNoOfPlatforms = Math.floor((canvas.width - brickSize.width) / brickSize.width);
 		//Less number of platforms the harder the game
 		const noOfPlatforms = getRandomInt(1,maxNoOfPlatforms);
-		
 		const maxWidth = Math.floor(maxNoOfPlatforms / noOfPlatforms);
-		
 		let offSetStart = getRandomInt(0,1);
 		let platformSize = getRandomInt(1,maxWidth);
-		
 		//get the plaform widths to use
 		let randomPlatformWidths = [];
+		
 		for (let i = 0; i < noOfPlatforms; i++){
 			platformSize = getRandomInt(1,maxWidth);
 			randomPlatformWidths.push( platformSize );
@@ -147,8 +136,8 @@ const GameDirector = () => {
 		} , 0);
 		
 		let emptySpaceDistribution = (canvas.width - (sumOfPlatformWidths * brickSize.width));// / noOfPlatforms;
-		
 		let x = (offSetStart == 1 ? emptySpaceDistribution : 0);
+		
 		for (platformWidth of randomPlatformWidths){
 			platforms.push(Platform(x, canvas.height, platformWidth * brickSize.width));
 			if (getRandomInt(0,10) == 5){
@@ -161,12 +150,10 @@ const GameDirector = () => {
 	}
 	
 	const drawPlatforms = () => {
-		for (platform of platforms){
+		for (platform of platforms)
 			platform.draw();
-		}
-		for (coin of coins){
+		for (coin of coins)
 			coin.draw();
-		}
 	}
 	
 	const collidedWithPlatform = (thePlayer) => {
@@ -180,6 +167,7 @@ const GameDirector = () => {
 	
 	const collidedWithCoin  = (thePlayer) => {
 		let deleted = false;
+		
 		for (let i = coins.length-1; i > -1 ; i--){
 			if (coins[i].intersects(thePlayer.getBounds())){
 				scoreboard.increaseScore(100000);
@@ -187,6 +175,7 @@ const GameDirector = () => {
 				deleted = true;
 			}
 		}
+		
 		if (deleted){
 			let temp = [];	
 			for(let i of coins){
@@ -194,11 +183,11 @@ const GameDirector = () => {
 				coins = temp;
 			}
 		}
-		
 	}
 	
 	const movePlatforms = () => {
 		let deleted = false;
+		
 		for (let i = platforms.length-1; i > -1 ; i--){
 			platforms[i].move();
 			if (platforms[i].getPosition().y == 0){
@@ -214,7 +203,9 @@ const GameDirector = () => {
 				platforms = temp;
 			}
 		}
+		
 		deleted = false;
+		
 		for (let i = coins.length-1; i > -1 ; i--){
 			coins[i].move();
 			if (coins[i].getPosition().y == 0){
@@ -232,6 +223,7 @@ const GameDirector = () => {
 		}
 		
 		timeElaspedSinceLastSpawn += (Date.now() - spawnAt);
+		
 		if (timeElaspedSinceLastSpawn > spawnInterval){
 			spawnPlatforms();
 			timeElaspedSinceLastSpawn = 0;

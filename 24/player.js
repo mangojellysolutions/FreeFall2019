@@ -1,7 +1,6 @@
 const Player = (x ,y) => {
 	const size = {w: 32, h: 32};
 	const position  = { x:x, y:y };
-	
 	let speed = 0;
 	const defaultFallRate = 1.5;
 	const maxFallRate = 10;
@@ -56,8 +55,7 @@ const Player = (x ,y) => {
 	}
 	
 	const draw = () => {
-		//should precalculate these images first
-		ctx.fillStyle = "red";
+		//TODO: Should really pre-calculate these images first
 		//drawBounds();
 		if (direction == 'left'){
 			ctx.save();
@@ -68,19 +66,18 @@ const Player = (x ,y) => {
 		} else {
 			ctx.drawImage(playerFrames[frameIdx],position.x, position.y-size.h+10,size.w,size.h);
 		}
-		
-		ctx.fillStyle = "blue";
 	}
 	
 	const drawBounds = () => {
-		const rect1 = getBounds();
-		ctx.fillRect(rect1.x,rect1.y,rect1.width, rect1.height);
+		const rect = getBounds();
+		ctx.fillRect(rect.x,rect.y,rect.width, rect.height);
 	}
 	
 	const moveRight = () => speed += 0.2
+	
 	const moveLeft = () => speed -= 0.2
 	
-	const skidd = () => {
+	const skid = () => {
 		if (Math.abs(speed)>0){
 			if (speed > 0){
 				speed -= 0.2;
@@ -96,6 +93,7 @@ const Player = (x ,y) => {
 			}
 		}
 	}
+	
 	const wrap =() => {
 		if (position.x < 0)
 			position.x = canvas.width;
@@ -107,7 +105,7 @@ const Player = (x ,y) => {
 		switch(state){
 			case 'left': moveLeft(); break;
 			case 'right': moveRight();	break;
-			default: skidd();
+			default: skid();
 			
 		}
 		wrap();

@@ -33,8 +33,7 @@ const Scoreboard = () => {
 		start = Date.now();
 	}
 	
-	const increaseScore = (val) => {
-		score.own += val;
-	}
+	const increaseScore = (val) => score.own += val;
+	
 	return { reset, draw, update, increaseScore }
 }

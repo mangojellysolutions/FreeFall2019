@@ -5,24 +5,22 @@ const BackgroundHandler = () => {
 	let yScrollOffsetB = canvas.height;
 	let scrollSpeed1 = 8;
 	let scrollSpeed2 = 5;
+	
 	const drawHex = (ctx, strokeColour, fillColour , size, x, y) => {
 		ctx.beginPath();
 		ctx.moveTo(x + size * Math.cos(0), y + size * Math.sin(0));
 		
 		for (let side = 0; side < 7; side++) {
-		
 		  let newX = x + size * Math.cos(side * 2 * Math.PI / 6);
 		  let newY = y + size * Math.sin(side * 2 * Math.PI / 6);
 		  ctx.lineTo(newX, newY);
 		}
 		
-		
 		if (fillColour != null ){
 			ctx.fillStyle = fillColour;
 			ctx.fill();
 		}
-			ctx.stroke();
-		
+		ctx.stroke();
 	}
 	const neonHex = (ctx,r,g,b, fillColour,size,x,y) => {
 		const alpha = 0.1;
@@ -43,17 +41,17 @@ const BackgroundHandler = () => {
 		ctx.strokeStyle= '#fff';
 		ctx.lineWidth=1.5;
 		drawHex(ctx, ctx.strokeStyle, fillColour, size, x, y);
-	};
+	}
+	
 	const drawGroup = (ctx, dimension, size, r,g,b, fillColour, lineWidth) => {
 		let yMultiplier =0;
 		let yOffset = size - (size / 7.5);
 		let xOffset = size + size / 2;
 		for (let i = 0; i < 10 * dimension; i++){
-			//drawHex(ctx,strokeColour, fillColour, lineWidth, size, 0, yOffset * yMultiplier);
 			neonHex(ctx,r,g,b, fillColour, size, 0, yOffset * yMultiplier);
 			yMultiplier += 2;
 		}
-		 yMultiplier =0;
+		yMultiplier =0;
 		for (let i = 0; i < 10 * dimension; i++){
 			if (i % 2 == 1){
 				neonHex(ctx,r,g,b, fillColour, size, xOffset,yOffset + yOffset * yMultiplier);
@@ -99,16 +97,13 @@ const BackgroundHandler = () => {
 			yScrollOffsetB = canvas.height;
 		}
 	}
-	//https://codepen.io/agar3s/pen/pJpoya
+	
 	const draw = () => {
 		let foregroundLeft = {start: 0, end: canvas.width / 8};
 		let foregroundRight = {start: canvas.width - canvas.width / 8, end: canvas.width};
 		let backgroundLeft = {start: foregroundLeft.end, end: foregroundLeft.end + canvas.width / 8};
 		let backgroundRight = {start: foregroundRight.start - canvas.width / 8, end: foregroundRight.start};
-		const grd = ctx.createLinearGradient(0, canvas.height/1.25,0,0);
-		grd.addColorStop(0,"darkblue");
-		grd.addColorStop(1,"white");
-		//ctx.fillStyle = grd;
+	
 		ctx.fillStyle = 'darkblue';
 		ctx.fillRect(0,0,canvas.width, canvas.height);
 		ctx.drawImage(mainBackground,0,0,canvas.width, canvas.height);
@@ -128,7 +123,6 @@ const BackgroundHandler = () => {
 		
 		ctx.drawImage(foreGround,0,yScrollOffsetA);
 		ctx.drawImage(foreGround,0,yScrollOffsetB);
-		
 	}
 	return { draw, update }
 }

@@ -54,9 +54,7 @@ const init = async () => {
 	const gameDirector = GameDirector();
 	const backgroundHandler = BackgroundHandler();
 	
-	const getRandomArbitrary = (min, max) => {
-		return Math.random() * (max - min) + min;
-	}
+	const getRandomArbitrary = (min, max) => Math.random() * (max - min) + min;
 
 	const getImage = (imageUrl) => {
 		return new Promise((resolve, reject) => {
@@ -67,9 +65,7 @@ const init = async () => {
 		 })
 	}
 	
-	const loadImage = async(imageUrl) => {
-	  return await getImage(imageUrl);
-	}
+	const loadImage = async(imageUrl) => await getImage(imageUrl);
 
 	mainBackground = await loadImage("grafix/stars.jpg");
 	playerFrames.push(await loadImage('animation/1.svg'));
@@ -150,34 +146,22 @@ const init = async () => {
 		return {getImage};
 	}
 			
-
-	const  drawTitle = () => {
-		neonLightEffect("Freefall 2019", "100px")
-	}
-
-	const drawGameOver = () => {
-		neonLightEffect("Game Over", "100px");
-	}
+	const  drawTitle = () => neonLightEffect("Freefall 2019", "100px")
 	
-
+	const drawGameOver = () => neonLightEffect("Game Over", "100px");
 	
-	
-	function neonLightEffect(text, textSize) {
-		var blur = 10;
+	const neonLightEffect = (text, textSize) => {
+		const blur = 10;
 		ctx.save();
 		ctx.font = "700 "+textSize+" Arial";
 		ctx.textAlign = "center";
-		//var width = ctx.measureText(text).width + blur * 2;
-		//ctx.textBaseline = 'top'
 		ctx.shadowColor = '#FFF'
 		ctx.shadowOffsetX = 0;
 		ctx.shadowOffsetY = 0;
 		ctx.shadowBlur = blur;
 		ctx.lineWidth   = 2;
-		//ctx.strokeStyle = 'black';
 		ctx.strokeStyle = 'white';
 		ctx.fillStyle = 'white';
-		//ctx.fillText(text,  canvas.width/2, canvas.height/2);
 		ctx.strokeText(text,  canvas.width/2, canvas.height/2);
 		ctx.strokeStyle = 'rgba(255,255,255,0.2)';
 		ctx.lineWidth   = 1;
@@ -192,8 +176,6 @@ const init = async () => {
 		ctx.fillText('--- PRESS SPACE BAR TO CONTINUE ---',  canvas.width/2, canvas.height/2 + 50);
 		ctx.restore();
 	}
-
-	
 
 	const checkPlayerInBoundsOfScreen = () => {
 		if (player.getPosition().y > canvas.height  || player.getPosition().y < 20){
@@ -267,5 +249,4 @@ const init = async () => {
 	window.requestAnimationFrame(loop);
 	window.addEventListener('keydown', checkKeyBoard, false);
 	window.addEventListener('keyup', releaseKey, false);
-
 }
