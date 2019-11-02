@@ -1,7 +1,4 @@
-# FreeFall2019
 24 Hour Challenge: Programming for a total of 24 hours with sittings of no more than 1 to 2 hours per day to create a game base on the Atari Jaguar game 'Down Fall' using only Javascript, HTML5 Canvas, and Notepad ++ (without any code hints or completion). Additional libraries, game engines and frameworks will not be used, all code will be started from scratch / zero / nothing.
-
-# Diary 
 
 2hrs 
 Started by creating a basic skeleton layout using the move, line to and shape canvas commands to draw simple graphics, scoreboard and a gradient filled background.  A basic player object was created with simple methods for draw and lateral movement across the screen controlled via the keyboard.  Also a simple platform object was create containing just the initialisation and draw methods.  The start of the main game loop was added to draw these to screen.
